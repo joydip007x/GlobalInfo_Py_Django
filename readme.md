@@ -1,5 +1,5 @@
-```markdown
-# World Atlas API & Explorer (Code Fusion AI)
+
+# World Atlas Explorer
 
 A Django application to fetch, store, and serve country data via a RESTful API and a simple web interface. Data is sourced from restcountries.com and stored in PostgreSQL.
 
