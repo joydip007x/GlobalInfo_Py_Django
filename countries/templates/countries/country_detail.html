@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ country.name_common }} Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>
+            {% if country.flags_svg %}
+                <img src="{{ country.flags_svg }}" alt="Flag of {{ country.name_common }}" style="max-height: 40px; vertical-align: middle; margin-right: 10px; border: 1px solid #666;">
+            {% elif country.flags_png %}
+                 <img src="{{ country.flags_png }}" alt="Flag of {{ country.name_common }}" style="max-height: 40px; vertical-align: middle; margin-right: 10px; border: 1px solid #666;">
+            {% endif %}
+            {{ country.name_common }}
+            <small class="text-muted" style="color: #ccc !important;">({{ country.cca2 }})</small> 
+        </h1>
+        <p class="lead">{{ country.name_official }}</p>
+
+        <table class="table table-bordered">
+             <tr>
+                <th>Capital(s)</th>
+                <td>{{ country.capital|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <th>Population</th>
+                <td>{{ country.population|intcomma|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <th>Region</th>
+                <td>{{ country.region|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <th>Subregion</th>
+                <td>{{ country.subregion|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <th>Timezones</th>
+                <td>
+                    {% if country.timezones %}
+                        {{ country.timezones|join:", " }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Languages</th>
+                <td>
+                    {% if country.languages %}
+                        <ul>
+                            {% for code, name in country.languages.items %}
+                                <li>{{ name }} ({{ code }})</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+             <tr>
+                <th>Coordinates (Lat, Lng)</th>
+                <td>
+                    {% if country.latitude and country.longitude %}
+                        {{ country.latitude|floatformat:4 }}, {{ country.longitude|floatformat:4 }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        {% if regional_countries %}
+        <div class="card mt-4 mt-md-0">
+            <div class="card-header">
+                Other Countries in {{ country.region }} (Top 10)
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for reg_country in regional_countries %}
+                    <li class="list-group-item">
+                        <a href="{% url 'country_detail' cca2=reg_country.cca2 %}" class="link-unstyled d-flex align-items-center"> 
+                            <svg class="regional-list-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg>
+
+                            {% if reg_country.flags_svg %}
+                                <img src="{{ reg_country.flags_svg }}" alt="Flag of {{ reg_country.name_common }}" class="regional-list-flag">
+                            {% elif reg_country.flags_png %}
+                                <img src="{{ reg_country.flags_png }}" alt="Flag of {{ reg_country.name_common }}" class="regional-list-flag">
+                            {% else %}
+                                <span style="display: inline-block; width: 36px; height: 18px; margin-right: 5px; text-align: center; line-height: 18px; border: 1px solid #666;">N/A</span>
+                            {% endif %}
+                            {{ reg_country.name_common }}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No other countries found in this region.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<a href="{% url 'country_list' %}" class="btn btn-secondary mt-3">« Back to List</a>
+{% endblock %}

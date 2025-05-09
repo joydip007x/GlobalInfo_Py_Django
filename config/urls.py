@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from countries.views import CountryListView,CountryDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('countries.urls')),
+    # path('api/', include('countries.urls')), 
+    path('', CountryListView.as_view(), name='country_list'), 
+    path('country/<slug:cca2>/', CountryDetailView.as_view(), name='country_detail'),
+
+    path('accounts/', include('django.contrib.auth.urls')),
 ]

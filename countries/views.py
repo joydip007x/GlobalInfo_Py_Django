@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from django.db.models import Q 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import ListView, DetailView
+
 
 from .models import Country
 from .serializers import CountrySerializer
@@ -80,3 +83,47 @@ class CountryViewSet(viewsets.ModelViewSet):
                 return Response({"message": f"No countries found speaking '{language_name_query}'"}, status=status.HTTP_200_OK)
 
         return Response(serializer.data)
+
+
+class CountryListView(ListView):
+    model = Country
+    template_name = 'countries/country_list.html' 
+    context_object_name = 'countries'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by('name_common')
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(name_common__icontains=query) |
+                Q(name_official__icontains=query) |
+                Q(cca2__iexact=query)
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
+
+
+class CountryDetailView(DetailView):
+    model = Country
+    template_name = 'countries/country_detail.html' 
+    context_object_name = 'country'
+    slug_field = 'cca2' 
+    slug_url_kwarg = 'cca2'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        country = self.get_object()
+
+        if country.region:
+            context['regional_countries'] = Country.objects.filter(
+                region=country.region
+            ).exclude(pk=country.pk).order_by('name_common')[:10] 
+        else:
+            context['regional_countries'] = None
+
+        return context
